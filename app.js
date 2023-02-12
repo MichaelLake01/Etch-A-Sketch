@@ -1,10 +1,45 @@
 const gridContainer = document.getElementById('grid-container');
 createGrid();
+
 const grids = document.querySelectorAll(".grid-box");
+
+const trail = document.createElement("div");
+defineTrail();
+
 let height;
 let width;
+
 window.addEventListener("resize", updateSize);
 window.addEventListener("load", updateSize);
+
+function defineTrail()
+{
+    trail.className = "trail";
+    document.body.appendChild(trail);
+}
+
+let currentGridElement = null;
+
+document.addEventListener("mousemove", function(event) {
+    const dot = document.createElement("div");
+    dot.className = "dot";
+    dot.style.left = event.clientX + "px";
+    dot.style.top = event.clientY + "px";
+    trail.appendChild(dot);
+    
+    
+    grids.forEach(e => {
+        const rect = e.getBoundingClientRect();
+        if (event.clientX >= rect.left && event.clientX <= rect.right &&
+            event.clientY >= rect.top && event.clientY <= rect.bottom) {
+            
+            if (e !== currentGridElement) {
+                e.style.backgroundColor = getRandomColor();
+                currentGridElement = e;
+            }
+        }
+    });
+});
 
 
 function updateSize()
