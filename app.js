@@ -1,10 +1,34 @@
 const gridContainer = document.getElementById('grid-container');
-createGrid();
-
-const grids = document.querySelectorAll(".grid-box");
-
 const trail = document.createElement("div");
+const button = document.querySelector("#grid-btn");
+let grids;
+
+button.addEventListener("click", function() {
+    const regex = /^([1-9]|[1-9][0-9]|100)x([1-9]|[1-9][0-9]|100)$/;
+
+    let userInput = prompt("Enter a value in the format of 'XxY', where X and Y are numbers in the range of 1 to 100");
+
+    if (regex.test(userInput)) {
+        let numbers = userInput.split("x");
+        let num1 = parseInt(numbers[0]);
+        let num2 = parseInt(numbers[1]);
+        removeGrids();
+        createGrid(num1, num2);  
+    }
+    else 
+    {
+        if(userInput !== null)
+        {
+            alert("Invalid input. The value must be in the format of 'XxY', where X and Y are numbers in the range of 1 to 100.");
+        }
+    }
+
+});
+
+
+innitGrid();
 addTrail();
+
 
 const trailColors = [
     "#676F9F",
@@ -27,7 +51,7 @@ const trailColors = [
 
 
 window.addEventListener("resize", updateSize);
-window.addEventListener("load", updateSize);
+
 
 function addTrail()
 {
@@ -39,8 +63,7 @@ function addTrail()
 function cleanTrail() {
 
     const trailArr = Array.from(trail.children);
-    console.log(trailArr.length);
-    const maxAmount = 250;
+    const maxAmount = 175;
     while (trailArr.length > maxAmount)
     {
 
@@ -50,20 +73,31 @@ function cleanTrail() {
 
 }
 
-
-
-
 let currentGridElement = null;
 document.addEventListener("mousemove", function(event) {
-    const dot = document.createElement("div");
 
-    const posX = event.clientX + (Math.random() * 20 - 10);
-    const posY = event.clientY + (Math.random() * 20 - 10);
+    if(event.target !== button)
+    {
+        let dot = document.createElement("div");   
 
-    dot.className = "dot";
-    dot.style.left = posX + "px";
-    dot.style.top = posY + "px";
-    trail.appendChild(dot);
+        const posX = event.clientX + (Math.random() * 20 - 10);
+        const posY = event.clientY + (Math.random() * 20 - 10);
+    
+        dot.className = "dot";
+        dot.style.left = posX + "px";
+        dot.style.top = posY + "px";
+        trail.appendChild(dot);
+    
+        changeTrailVals(dot);
+        changeBoxColor(event);
+    
+        cleanTrail();
+    }
+
+});
+
+
+function changeTrailVals(dot){
 
     const range = (0.8 - 0.2) + 1;
     const opacity = (0.2 + (Math.random() * range).toFixed(1));
@@ -72,7 +106,11 @@ document.addEventListener("mousemove", function(event) {
     trailColors.forEach(color => {
         dot.style.backgroundColor = color;
     });
-    
+
+}
+
+function changeBoxColor(event)
+{
     grids.forEach(e => {
         const rect = e.getBoundingClientRect();
         if (event.clientX >= rect.left && event.clientX <= rect.right &&
@@ -84,16 +122,14 @@ document.addEventListener("mousemove", function(event) {
             }
         }
     });
+}
 
-    cleanTrail();
-
-});
-
-
-function updateSize()
+function updateSize(x,y)
 {
-    height = gridContainer.clientHeight / 16;
-    width = gridContainer.clientWidth / 16;
+
+    height = gridContainer.clientHeight / y;
+    width = gridContainer.clientWidth / x;
+
     
     grids.forEach(e => {
         e.style.width = `${width}px`;
@@ -102,14 +138,41 @@ function updateSize()
  
 }
 
-function createGrid(){
+function removeGrids()
+{
+    grids.forEach(e => {
+        e.remove();
+    });
+}
+
+
+function createGrid(x,y){
+
+    let prevX;
+    let prevY;
+
+    if(prevX !== x && prevY !== y)
+    {     
+
+        prevX = x;
+        prevY = y;
     
-    for (let i = 0; i < 16*16; i++) {
+        innitGrid(x,y);
+    }
+
+}
+
+function innitGrid(x = 16, y = 16)
+{
+    for (let i = 0; i < x*y; i++) {
         let grid = document.createElement('div');
         grid.className = "grid-box";
         grid.style.backgroundColor = getRandomColor();
         gridContainer.appendChild(grid);
     }
+
+    grids = document.querySelectorAll(".grid-box");
+    updateSize(x,y);
 }
 
 function getRandomColor() {
